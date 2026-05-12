@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { Lead } from "../models/lead.model.js";
 import { Discussion } from "../models/discussion.model.js";
 import { LEAD_STATUS } from "../constants.js";
+import { DB_NAME } from "../constants.js";
 
 dotenv.config();
 
@@ -161,7 +162,12 @@ const discussionsData = [
 
 const seedDatabase = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
+        const uri = process.env.NODE_ENV === "docker"
+            ? process.env.MONGODB_URI_LOCAL_DOCKER
+            : `${process.env.MONGODB_URI}${DB_NAME}`;
+
+        console.log("Connecting to:", uri);
+        await mongoose.connect(uri);
         console.log("MongoDB connected for seeding...");
 
         // Clear existing data

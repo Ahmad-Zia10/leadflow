@@ -5,11 +5,13 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "seed": "node seed/seed.js"
+    "seed": "node seed/seed.js",
+    "seed:docker": "cross-env NODE_ENV=docker node seed/seed.js"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^10.1.0",
     "dotenv": "^16.0.0",
     "express": "^4.18.0",
     "mongodb": "^7.2.0",
