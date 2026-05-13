@@ -1,9 +1,12 @@
+import { createSlice } from "@reduxjs/toolkit"
+
 const initialState = {
     activeFilter: "All",
     searchQuery: "",
     selectedLeadId: null,         // ← just ID, not full object
     isAddLeadModalOpen: false,
     isTimelineDialogOpen: false,
+    isDarkMode: true
 }
 
 const leadSlice = createSlice({
@@ -30,6 +33,9 @@ const leadSlice = createSlice({
             state.selectedLeadId = null;
             state.isTimelineDialogOpen = false;
         },
+        toggleTheme: (state) => {
+            state.isDarkMode = !state.isDarkMode
+        },
     }
 });
 
@@ -40,6 +46,7 @@ export const {
     closeAddLeadModal,
     openTimelineDialog,
     closeTimelineDialog,
+    toggleTheme,
 } = leadSlice.actions;
 
 export default leadSlice.reducer;
