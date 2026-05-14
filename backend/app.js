@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middleware/error.middleware.js";
+import dotenv from "dotenv"
+
+dotenv.config()
 
 // Route imports
 import leadRouter from "./routes/lead.routes.js";
