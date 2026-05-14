@@ -3,29 +3,6 @@ import { X, Phone, Calendar } from "lucide-react";
 
 const STATUSES = ["New", "Contacted", "Qualified", "Proposal Sent", "Won", "Lost"];
 
-function fmtDateTime(date) {
-    if (!date) return "";
-    const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleString([], {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-    });
-}
-
-function timeAgo(date) {
-    if (!date) return "";
-    const d = date instanceof Date ? date : new Date(date);
-    const diff = Date.now() - d.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days <= 0) {
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        return `${Math.max(hours, 1)}h ago`;
-    }
-    return `${days}d ago`;
-}
-
 function TimelineDialog({
     isOpen,
     onClose,

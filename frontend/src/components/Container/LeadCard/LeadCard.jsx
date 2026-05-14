@@ -1,41 +1,5 @@
 import StatusBadge from "../../core/StatusBadge";
 
-function timeAgo(date) {
-    if (!date) return "";
-    const d = date instanceof Date ? date : new Date(date);
-    const diff = Date.now() - d.getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${Math.max(mins, 1)} minute${mins === 1 ? "" : "s"} ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
-    const weeks = Math.floor(days / 7);
-    return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
-}
-
-function isToday(date) {
-    if (!date) return false;
-    const d = date instanceof Date ? date : new Date(date);
-    const now = new Date();
-    return (
-        d.getFullYear() === now.getFullYear() &&
-        d.getMonth() === now.getMonth() &&
-        d.getDate() === now.getDate()
-    );
-}
-
-function isOverdue(date) {
-    if (!date) return false;
-    const d = date instanceof Date ? date : new Date(date);
-    return d.getTime() < Date.now() && !isToday(d);
-}
-
-function formatTime(date) {
-    const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-}
-
 function LeadCard({ lead, onLeadClick }) {
     const overdue = isOverdue(lead.followUpDate);
     const today = isToday(lead.followUpDate);
