@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
     activeFilter: "All",
-    searchQuery: "",
     selectedLeadId: null,         // ← just ID, not full object
     isAddLeadModalOpen: false,
     isTimelineDialogOpen: false,
@@ -15,9 +14,6 @@ const leadSlice = createSlice({
     reducers: {
         setActiveFilter: (state, action) => {
             state.activeFilter = action.payload;
-        },
-        setSearchQuery: (state, action) => {
-            state.searchQuery = action.payload;
         },
         openAddLeadModal: (state) => {
             state.isAddLeadModalOpen = true;
@@ -41,7 +37,6 @@ const leadSlice = createSlice({
 
 export const {
     setActiveFilter,
-    setSearchQuery,
     openAddLeadModal,
     closeAddLeadModal,
     openTimelineDialog,

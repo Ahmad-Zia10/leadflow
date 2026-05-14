@@ -1,31 +1,11 @@
 import { Search } from "lucide-react";
 import LeadCard from "../LeadCard/LeadCard";
 
-function LeadList({ leads = [], todayLeads = [], onLeadClick, searchQuery, onSearchChange }) {
+function LeadList({ leads = [], todayLeads = [], onLeadClick}) {
     const hasAny = leads.length > 0 || todayLeads.length > 0;
 
     return (
         <div className="space-y-6">
-
-            {/* Search Bar */}
-            <div className="relative">
-                <Search className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                    type="text"
-                    value={searchQuery || ""}
-                    onChange={(e) => onSearchChange?.(e.target.value)}
-                    placeholder="Search leads by name..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm
-                        bg-white dark:bg-white/5
-                        border border-gray-200 dark:border-white/10
-                        text-gray-900 dark:text-white
-                        placeholder-gray-400 dark:placeholder-slate-500
-                        focus:outline-none focus:ring-2
-                        focus:ring-indigo-500/30 dark:focus:ring-indigo-500/20
-                        focus:border-indigo-400 dark:focus:border-indigo-500/50
-                        transition-all duration-200"
-                />
-            </div>
 
             {/* Today's Follow-ups */}
             {todayLeads.length > 0 && (

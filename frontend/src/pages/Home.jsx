@@ -1,7 +1,7 @@
+import { useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import {
     setActiveFilter,
-    setSearchQuery,
     openAddLeadModal,
     closeAddLeadModal,
     openTimelineDialog,
@@ -15,27 +15,33 @@ import FilterBar from "../components/core/FilterBar"
 import LeadList from "../components/Container/LeadList/LeadList"
 import AddLeadModal from "../components/core/AddLeadModal"
 import TimelineDialog from "../components/core/TimelineDialog"
+import { Search } from "lucide-react"
+import useDebounce from "../hooks/useDebounce"
 
 function Home() {
     const dispatch = useDispatch()
+    const [searchQuery, setSearchQuery] = useState("")
+    const debouncedSearch = useDebounce(searchQuery, 400)
 
     const activeFilter = useSelector((state) => state.lead.activeFilter)
-    const searchQuery = useSelector((state) => state.lead.searchQuery)
     const selectedLeadId = useSelector((state) => state.lead.selectedLeadId)
     const isAddLeadModalOpen = useSelector((state) => state.lead.isAddLeadModalOpen)
     const isTimelineDialogOpen = useSelector((state) => state.lead.isTimelineDialogOpen)
     const isDarkMode = useSelector((state) => state.lead.isDarkMode)
 
-    const { leads, isLoading, isError } = useLeads()
+    const { leads, isPending, isError } = useLeads(debouncedSearch)
+
+    console.log("isPending:", isPending)
+    console.log("render")
+
     const { todayLeads, otherLeads } = splitLeadsByFollowUp(leads)
 
-    const createLead = useCreateLead()
-
-    const handleCreateLead = (formData) => {
-        createLead.mutate(formData)
+    const handleFilterChange = (filter) => {
+        dispatch(setActiveFilter(filter))
+        setSearchQuery("")
     }
 
-    if (isLoading) {
+    if (isPending) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f] flex items-center justify-center">
                 <div className="text-center space-y-3">
@@ -62,38 +68,52 @@ function Home() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f]">
-
             <Header
                 onAddLeadClick={() => dispatch(openAddLeadModal())}
                 isDarkMode={isDarkMode}
                 onToggleTheme={() => dispatch(toggleTheme())}
             />
-
             <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
                 <FilterBar
                     activeFilter={activeFilter}
-                    onFilterChange={(filter) => dispatch(setActiveFilter(filter))}
+                    onFilterChange={handleFilterChange}
                 />
+
+                    {/* Search Bar */}
+                <div className="relative">
+                    <Search className="w-4 h-4 text-gray-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search leads by name..."
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm
+                            bg-white dark:bg-white/5
+                            border border-gray-200 dark:border-white/10
+                            text-gray-900 dark:text-white
+                            placeholder-gray-400 dark:placeholder-slate-500
+                            focus:outline-none focus:ring-2
+                            focus:ring-indigo-500/30 dark:focus:ring-indigo-500/20
+                            focus:border-indigo-400 dark:focus:border-indigo-500/50
+                            transition-all duration-200"
+                    />
+                </div>
+
                 <LeadList
                     leads={otherLeads}
                     todayLeads={todayLeads}
                     onLeadClick={(lead) => dispatch(openTimelineDialog(lead._id))}
-                    searchQuery={searchQuery}
-                    onSearchChange={(query) => dispatch(setSearchQuery(query))}
                 />
             </div>
-
             <AddLeadModal
                 isOpen={isAddLeadModalOpen}
                 onClose={() => dispatch(closeAddLeadModal())}
             />
-
             <TimelineDialog
                 isOpen={isTimelineDialogOpen}
                 onClose={() => dispatch(closeTimelineDialog())}
                 leadId={selectedLeadId}
             />
-
         </div>
     )
 }

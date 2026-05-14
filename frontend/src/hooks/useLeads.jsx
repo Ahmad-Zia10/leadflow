@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { useSelector, useDispatch } from "react-redux";
 import { closeAddLeadModal, closeTimelineDialog } from "../store/leadSlice";
 import {
@@ -22,19 +22,19 @@ export const QUERY_KEYS = {
     discussions: (leadId) => ["discussions", leadId],
 };
 
-export function useLeads() {
+export function useLeads(searchQuery = "") {
     const activeFilter = useSelector((state) => state.lead.activeFilter);
-    const searchQuery = useSelector((state) => state.lead.searchQuery);
 
-    const { data, isLoading, isError, error } = useQuery({
+    const { data, isPending, isError, error } = useQuery({
         queryKey: QUERY_KEYS.leads({ status: activeFilter, search: searchQuery }),
         queryFn: () => getAllLeads({ status: activeFilter, search: searchQuery }),
         staleTime: 30 * 1000,
+        placeholderData: keepPreviousData
     });
 
     const leads = data?.data || [];
 
-    return { leads, isLoading, isError, error };
+    return { leads, isPending, isError, error };
 }
 
 
