@@ -15,6 +15,13 @@ import {
  * Centralized query key definitions.
  * React Query uses these keys to identify and manage cached data.
  */
+
+export const QUERY_KEYS = {
+    leads: (filters = {}) => ["leads", filters],
+    lead: (id) => ["lead", id],
+    discussions: (leadId) => ["discussions", leadId],
+};
+
 export function useLeads() {
     const activeFilter = useSelector((state) => state.lead.activeFilter);
     const searchQuery = useSelector((state) => state.lead.searchQuery);

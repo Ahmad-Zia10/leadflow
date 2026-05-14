@@ -86,8 +86,6 @@ function Home() {
             <AddLeadModal
                 isOpen={isAddLeadModalOpen}
                 onClose={() => dispatch(closeAddLeadModal())}
-                onSubmit={handleCreateLead}
-                isLoading={createLead.isPending}
             />
 
             <TimelineDialog
