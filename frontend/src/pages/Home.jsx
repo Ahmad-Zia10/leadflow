@@ -1,142 +1,101 @@
-import { useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import {
+    setActiveFilter,
+    setSearchQuery,
+    openAddLeadModal,
+    closeAddLeadModal,
+    openTimelineDialog,
+    closeTimelineDialog,
+    toggleTheme,
+} from "../store/leadSlice"
+import { useLeads, useCreateLead } from "../hooks/useLeads"
+import { splitLeadsByFollowUp } from "../utils/helpers"
 import Header from "../components/Header/Header"
 import FilterBar from "../components/core/FilterBar"
 import LeadList from "../components/Container/LeadList/LeadList"
 import AddLeadModal from "../components/core/AddLeadModal"
 import TimelineDialog from "../components/core/TimelineDialog"
 
-const dummyLeads = [
-    {
-        _id: "1",
-        name: "Sarah Connor",
-        company: "Acme Corp",
-        phone: "555-0199",
-        status: "Proposal Sent",
-        lastDiscussionNote: "Sent pricing tier PDF. Said she would review with her boss.",
-        lastDiscussionAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        followUpDate: new Date(),
-    },
-    {
-        _id: "2",
-        name: "Bill Lumbergh",
-        company: "Initech",
-        phone: "555-0162",
-        status: "Contacted",
-        lastDiscussionNote: "Left a voicemail with his assistant.",
-        lastDiscussionAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        followUpDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    },
-    {
-        _id: "3",
-        name: "Hank Scorpio",
-        company: "Globex",
-        phone: "555-0147",
-        status: "New",
-        lastDiscussionNote: "Inbound lead from website contact form.",
-        lastDiscussionAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        followUpDate: null,
-    },
-    {
-        _id: "4",
-        name: "Bruce Wayne",
-        company: "Wayne Enterprises",
-        phone: "555-0189",
-        status: "Won",
-        lastDiscussionNote: "Contract signed! Sending welcome package.",
-        lastDiscussionAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000),
-        followUpDate: null,
+function Home() {
+    const dispatch = useDispatch()
+
+    const activeFilter = useSelector((state) => state.lead.activeFilter)
+    const searchQuery = useSelector((state) => state.lead.searchQuery)
+    const selectedLeadId = useSelector((state) => state.lead.selectedLeadId)
+    const isAddLeadModalOpen = useSelector((state) => state.lead.isAddLeadModalOpen)
+    const isTimelineDialogOpen = useSelector((state) => state.lead.isTimelineDialogOpen)
+    const isDarkMode = useSelector((state) => state.lead.isDarkMode)
+
+    const { leads, isLoading, isError } = useLeads()
+    const { todayLeads, otherLeads } = splitLeadsByFollowUp(leads)
+
+    const createLead = useCreateLead()
+
+    const handleCreateLead = (formData) => {
+        createLead.mutate(formData)
     }
-]
 
-const dummyDiscussions = [
-    {
-        _id: "1",
-        note: "Sent pricing tier PDF. Said she would review with her boss.",
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        followUpDate: new Date(),
-    },
-    {
-        _id: "2",
-        note: "Initial discovery call. They need a CRM for 50 reps.",
-        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        followUpDate: null,
-    },
-    {
-        _id: "3",
-        note: "Lead created via web form.",
-        createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-        followUpDate: null,
-    }
-]
-
-function Home({ isDarkMode, onToggleTheme }) {
-    const [activeFilter, setActiveFilter] = useState("All")
-    const [searchQuery, setSearchQuery] = useState("")
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
-    const [selectedLead, setSelectedLead] = useState(null)
-
-    const todayLeads = dummyLeads.filter((lead) => {
-        if (!lead.followUpDate) return false
-        const d = new Date(lead.followUpDate)
-        const now = new Date()
+    if (isLoading) {
         return (
-            d.getFullYear() === now.getFullYear() &&
-            d.getMonth() === now.getMonth() &&
-            d.getDate() === now.getDate()
+            <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f] flex items-center justify-center">
+                <div className="text-center space-y-3">
+                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p className="text-sm text-gray-400 dark:text-slate-500">
+                        Loading leads...
+                    </p>
+                </div>
+            </div>
         )
-    })
+    }
 
-    const otherLeads = dummyLeads.filter(
-        (lead) => !todayLeads.find((t) => t._id === lead._id)
-    )
+    if (isError) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f] flex items-center justify-center">
+                <div className="text-center space-y-3">
+                    <p className="text-sm text-red-500">
+                        Failed to load leads. Is the backend running?
+                    </p>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f]">
 
-            {/* Header */}
             <Header
-                onAddLeadClick={() => setIsModalOpen(true)}
+                onAddLeadClick={() => dispatch(openAddLeadModal())}
                 isDarkMode={isDarkMode}
-                onToggleTheme={onToggleTheme}
+                onToggleTheme={() => dispatch(toggleTheme())}
             />
 
-            {/* Main content */}
             <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
                 <FilterBar
                     activeFilter={activeFilter}
-                    onFilterChange={setActiveFilter}
+                    onFilterChange={(filter) => dispatch(setActiveFilter(filter))}
                 />
                 <LeadList
                     leads={otherLeads}
                     todayLeads={todayLeads}
-                    onLeadClick={(lead) => {
-                        setSelectedLead(lead)
-                        setIsDialogOpen(true)
-                    }}
+                    onLeadClick={(lead) => dispatch(openTimelineDialog(lead._id))}
                     searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
+                    onSearchChange={(query) => dispatch(setSearchQuery(query))}
                 />
             </div>
 
-            {/* Add Lead Modal */}
             <AddLeadModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSubmit={(data) => console.log(data)}
-                isLoading={false}
+                isOpen={isAddLeadModalOpen}
+                onClose={() => dispatch(closeAddLeadModal())}
+                onSubmit={handleCreateLead}
+                isLoading={createLead.isPending}
             />
 
-            {/* Timeline Dialog */}
             <TimelineDialog
-                isOpen={isDialogOpen}
-                onClose={() => setIsDialogOpen(false)}
-                lead={selectedLead}
-                discussions={dummyDiscussions}
-                onStatusChange={(status) => console.log(status)}
-                onAddDiscussion={(data) => console.log(data)}
-                isLoading={false}
+                isOpen={isTimelineDialogOpen}
+                onClose={() => dispatch(closeTimelineDialog())}
+                leadId={selectedLeadId}
             />
+
         </div>
     )
 }
