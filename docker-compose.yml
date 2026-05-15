@@ -32,5 +32,20 @@ services:
       - ./backend:/app
       - /app/node_modules
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: leadflow_frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
 volumes:
   mongo_data:
