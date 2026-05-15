@@ -94,12 +94,20 @@ git clone https://github.com/yourusername/leadflow.git
 cd leadflow
 
 # 2. Create the backend env file
+**Backend:**
+```bash
 cp .env.example backend/.env
-# Edit backend/.env with your values
+# Fill in your MONGODB_URI
+
+**Frontend:**
+```bash
+echo "VITE_API_BASE_URL=http://localhost:8000/api/v1" > frontend/.env
+```
 
 # 3. Start all services
-docker compose up --build
+
 ```
+docker compose up --build
 
 Then in a new terminal, seed the database:
 
@@ -108,6 +116,13 @@ cd backend
 npm install
 npm run seed:docker
 ```
+
+> **Windows Users:** If you encounter a build error mentioning 
+> `invalid file request`, run these two commands separately, then seed the database:
+> ```cmd
+> set DOCKER_BUILDKIT=0
+> docker compose up --build
+> ```
 
 Open the app:
 - Frontend → http://localhost:5173
